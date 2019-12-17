@@ -92,6 +92,82 @@
 
 ```
 
+###### 配置监听器(Listener)
+
+两个常用的侦听器
+
+- org.springframework.web.context.request.**RequestContextListener**
+
+**RequestContextListener** 类实现了**ServletRequestListener**，说明它是一个Servlet侦听器，它通过LocaleContextHolder和RequestContextHolder向当前线程公开请求。要在web.xml中注册为侦听器，我们收到创建和删除请求的通知
+
+- org.springframework.web.context.**ContextLoaderListener**
+
+  在实现`ServletContextListener`接口时，Servlet容器会在Web应用程序的启动（`contextInitialized`）和关闭（`contextDestroyed`）时通知它
+
+```xml
+ <listener>
+     <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+ </listener>
+ <listener>
+     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+ </listener>
+```
+
+###### 配置请求参数进行UTF-8转码
+
+```xml
+<!--对所有请求参数进行转码，转为UTF-8 -->
+<filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <!--对所有请求生效-->
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+###### 配置spring-mvc配置文件的读取路径
+
+这里有两种配置方法
+
+- 方法一：通过**ContextLoaderListener**读取applicationContext.xml将spring容器和web容器进行整合
+
+```xml
+
+<context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:applicationContext.xml
+        </param-value>
+</context-param>
+```
+
+- 方法二：配置到servlet里
+
+```xml
+<servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+```
+
+#### 配置spring-mvc的配置文件（applicationContext.xml）
+
 #### 配置spring-mvc配置文件
 
 在resources文件夹下创建一个spring config文件，名称为`applicationContext/xml`
@@ -102,27 +178,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans >
         <!--开启注解扫描-->
-        <context:component-scan base-package="com.hhb"/>
+        <context:component-scan base-package="com.hhb"  annotation-config="true"/>
 </beans>
 ```
 
-#### 加载spring-mvc配置文件
-
-在web.xml添加如下配置，在spring-mvc程序启动时自动创建spring容器
-
-```xml
-<servlet>
-    <servlet-name>app</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <init-param>
-      <param-name>contextConfigLocation</param-name>
-      <param-value>classpath:applicationContext.xml</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-```
-
-#### 配置视图解析器
+##### 配置视图解析器
 
 修改`applicationContext/xml`
 

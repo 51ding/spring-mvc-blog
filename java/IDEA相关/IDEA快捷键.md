@@ -23,3 +23,15 @@ psvm
 ##### 创建getter,setter,override
 
 > Alt + Insert
+
+##### 代码格式化
+
+> Ctrl + Alt +L
+
+##### 查看某个接口的所有实现类
+
+> Ctrl +H
+
+##### 搜索某个类
+
+> Ctrl + N
